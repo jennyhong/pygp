@@ -63,13 +63,13 @@ class GroupGP(GP):
 
         """
         #just call them all and add up:
-        R = 0
+        result = {}
         #calculate them for all N
         for n in range(self.N):
             L = self.GPs[n].LMLgrad(hyperparams,**lml_kwargs)
             for key in L.keys():
-                R += (L[key])
-        return {'covar':R}
+                result[key] += (L[key])
+        return result
 
     def setData(self,x,y):
         """
