@@ -109,8 +109,8 @@ def plot_training_data(x, y,
             format_data['color'] = col
             PL.plot(x_shift[replicate_indices == i], y[replicate_indices == i], **format_data)
     else:
-			number_of_groups = x_shift.shape[0]
-	for i in xrange(number_of_groups):
+		number_of_groups = x_shift.shape[0]
+    for i in xrange(number_of_groups):
 	    col = matplotlib.cm.jet(i / (2. * number_of_groups))
             format_data['color'] = col
 	    PL.plot(x_shift[i], y[i], **format_data)

@@ -215,17 +215,17 @@ class GP(object):
             L = jitChol(K)[0].T # lower triangular
             alpha = solve_chol(L, self._get_y(hyperparams)) # TODO: not sure about this one
 
-        # DPOTRI computes the inverse of a real symmetric positive definite
-        # matrix A using the Cholesky factorization 
-        Linv = scipy.lib.lapack.flapack.dpotri(L)[0]
-        # Copy the matrix and kill the diagonal (we don't want to have 2*var)
-        Kinv = Linv.copy()
-        SP.fill_diagonal(Linv, 0)
-        # build the full inverse covariance matrix. This is correct: verified
-        # by doing SP.allclose(Kinv, linalg.inv(K))
-        Kinv += Linv.T
-        
-        self._covar_cache = {'K': K, 'L':L, 'alpha':alpha, 'Kinv': Kinv}
+            # DPOTRI computes the inverse of a real symmetric positive definite
+            # matrix A using the Cholesky factorization 
+            Linv = scipy.lib.lapack.flapack.dpotri(L)[0]
+            # Copy the matrix and kill the diagonal (we don't want to have 2*var)
+            Kinv = Linv.copy()
+            SP.fill_diagonal(Linv, 0)
+            # build the full inverse covariance matrix. This is correct: verified
+            # by doing SP.allclose(Kinv, linalg.inv(K))
+            Kinv += Linv.T
+            
+            self._covar_cache = {'K': K, 'L':L, 'alpha':alpha, 'Kinv': Kinv}
             #store hyperparameters for cachine
             self._covar_cache['hyperparams'] = copy.deepcopy(hyperparams)
             self._active_set_indices_changed = False

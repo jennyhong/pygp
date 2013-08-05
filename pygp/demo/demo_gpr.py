@@ -12,6 +12,7 @@ import logging as LG
 import numpy.random as random
 
 from pygp.gp import GP
+from pygp.gp.composite import GroupGP
 from pygp.covar import se, noise, combinators
 import pygp.likelihood as lik
 
@@ -91,11 +92,12 @@ def run_demo():
         lik_priors.append([lnpriors.lnGammaExp,[1,1]])
         priors = {'covar':covar_priors,'lik':lik_priors}
 
-        
-
-    
+   
     gp = GP(covar,likelihood=likelihood,x=x,y=y)
+    # gp2 = GP(covar,likelihood=likelihood,x=x,y=y)
+    # group_gp = GroupGP([gp,gp2])
     opt_model_params = opt.opt_hyper(gp,hyperparams,priors=priors,gradcheck=False)[0]
+    # opt_model_params = opt.opt_hyper(group_gp,hyperparams,priors=priors,gradcheck=False)[0]
     
     #predict
     [M,S] = gp.predict(opt_model_params,X)
@@ -105,7 +107,5 @@ def run_demo():
     gpr_plot.plot_training_data(x,y)
     PL.show()
     
-
-
 if __name__ == '__main__':
     run_demo()

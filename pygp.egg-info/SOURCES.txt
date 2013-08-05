@@ -22,7 +22,6 @@ pygp/covar/mu.py
 pygp/covar/noise.py
 pygp/covar/se.py
 pygp/covar/se_periodic.py
-pygp/covar/se_periodic.py
 pygp/demo/__init__.py
 pygp/demo/demo_gplvm.py
 pygp/demo/demo_gpr.py
