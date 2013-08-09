@@ -94,10 +94,10 @@ def run_demo():
 
    
     gp = GP(covar,likelihood=likelihood,x=x,y=y)
-    # gp2 = GP(covar,likelihood=likelihood,x=x,y=y)
-    # group_gp = GroupGP([gp,gp2])
-    opt_model_params = opt.opt_hyper(gp,hyperparams,priors=priors,gradcheck=False)[0]
-    # opt_model_params = opt.opt_hyper(group_gp,hyperparams,priors=priors,gradcheck=False)[0]
+    gp2 = GP(covar,likelihood=likelihood,x=x,y=y)
+    group_gp = GroupGP([gp,gp2])
+    # opt_model_params = opt.opt_hyper(gp,hyperparams,priors=priors,gradcheck=False)[0]
+    opt_model_params = opt.opt_hyper(group_gp,hyperparams,priors=priors,gradcheck=False)[0]
     
     #predict
     [M,S] = gp.predict(opt_model_params,X)

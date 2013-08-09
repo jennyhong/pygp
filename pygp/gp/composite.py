@@ -4,6 +4,7 @@ Grouping GP regression classes
 
 Module for composite Gaussian processes models that combine multiple GPs into one model
 """
+import collections
 
 from pygp.gp import GP
 import scipy as SP
@@ -63,10 +64,11 @@ class GroupGP(GP):
 
         """
         #just call them all and add up:
-        result = {}
+        result = collections.defaultdict(int)
         #calculate them for all N
         for n in range(self.N):
             L = self.GPs[n].LMLgrad(hyperparams,**lml_kwargs)
+            print L.keys(), result.keys()
             for key in L.keys():
                 result[key] += (L[key])
         return result
