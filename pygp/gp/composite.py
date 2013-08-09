@@ -68,7 +68,6 @@ class GroupGP(GP):
         #calculate them for all N
         for n in range(self.N):
             L = self.GPs[n].LMLgrad(hyperparams,**lml_kwargs)
-            print L.keys(), result.keys()
             for key in L.keys():
                 result[key] += (L[key])
         return result
