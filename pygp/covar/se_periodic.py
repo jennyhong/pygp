@@ -6,7 +6,7 @@ This class provides some ready-to-use implemented squared exponential covariance
 These SEs do not model noise, so combine them by a :py:class:`pygp.covar.combinators.SumCF`
 or :py:class:`pygp.covar.combinators.ProductCF` with the :py:class:`pygp.covar.noise.NoiseISOCF`, if you want noise to be modelled by this GP.
 """
-
+import math
 import scipy as SP
 import logging as LG
 from pygp.covar import CovarianceFunction
@@ -51,7 +51,7 @@ class Sqexp_Periodic_CF(CovarianceFunction):
         """
         return self.n_hyperparameters
 
-    def K(self, theta, x1, x2, p=2):
+    def K(self, theta, x1, x2=None, p=2):
         """
         See covPeriodic.m from GPML
         K(x, y) = A * exp( -nll*sin^2 (||x1-x2||/p) )
@@ -60,7 +60,7 @@ class Sqexp_Periodic_CF(CovarianceFunction):
         A = SP.exp(theta[0])
         nll = SP.exp(theta[1])
         distance = dist.dist(x1, x2) / p
-        rv = -nll * (math.sin(distance))^2
+        rv = -nll * math.pow(math.sin(distance), 2)
         rv = A * SP.exp(rv)
         return rv
 
@@ -76,29 +76,27 @@ class Sqexp_Periodic_CF(CovarianceFunction):
 #         V0 = SP.exp(2*theta[0])
 #         return V0*SP.exp(0)*SP.ones([x1.shape[0]])
     
-#     def Kgrad_theta(self, theta, x1, i):
-#         """
-#         The derivatives of the covariance matrix for
-#         each hyperparameter, respectively.
+    def Kgrad_theta(self, theta, x1, i, x2=None, p=2):
+        """
+        The derivatives of the covariance matrix for
+        each hyperparameter, respectively.
 
-#         **Parameters:**
-#         See :py:class:`pygp.covar.CovarianceFunction`
-#         """
-#         x1 = self._filter_x(x1)
-#         # 2. exponentiate params:
-#         V0 = SP.exp(2*theta[0])
-#         L  = SP.exp(theta[1:1+self.n_dimensions])
-#         # calculate squared distance manually as we need to dissect this below
-#         x1_ = x1/L
-#         d  = dist.dist(x1_,x1_)
-#         sqd = (d*d)
-#         sqdd = sqd.sum(axis=2)
-#         #3. calcualte withotu derivatives, need this anyway:
-#         rv0 = V0*SP.exp(-0.5*sqdd)
-#         if i==0:
-#             return 2*rv0
-#         else:
-#             return rv0*sqd[:,:,i-1]
+        **Parameters:**
+        See :py:class:`pygp.covar.CovarianceFunction`
+        """
+        x1, x2 = self._filter_input_dimensions(x1, x2)
+        # 2. exponentiate params:
+        A = SP.exp(2*theta[0])
+        nll  = SP.exp(theta[1:1+self.n_dimensions])
+        # calculate sin^2 (|x1-x2|/p)
+        distance = dist.dist(x1, x2) / p
+        sinsq = math.pow(math.sin(distance), 2)
+        #3. calcualte withotu derivatives, need this anyway:
+        derivative_A = SP.exp(-nll * sinsq)
+        if i==0:
+            return derivative_A
+        else:
+            return -A * sinsq * derivative_A
 
     
 #     def Kgrad_x(self,theta,x1,x2,d):

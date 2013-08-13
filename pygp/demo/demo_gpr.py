@@ -78,8 +78,8 @@ def run_demo():
     if 1:
         #new interface with likelihood parametres being decoupled from the covaraince function
         likelihood = lik.GaussLikISO()
-        covar_parms = SP.log([1,1])
-        hyperparams = {'covar':covar_parms,'lik':SP.log([1])}       
+        covar_parms = scipy.log([1,1])
+        hyperparams = {'covar':covar_parms,'lik':scipy.log([1])}       
         #construct covariance function
         SECF = se.SqexpCFARD(n_dimensions=n_dimensions)
         covar = SECF
