@@ -6,12 +6,14 @@ This class provides some ready-to-use implemented squared exponential covariance
 These SEs do not model noise, so combine them by a :py:class:`pygp.covar.combinators.SumCF`
 or :py:class:`pygp.covar.combinators.ProductCF` with the :py:class:`pygp.covar.noise.NoiseISOCF`, if you want noise to be modelled by this GP.
 """
-import math
+import inspect
+
 import scipy as SP
 import logging as LG
 from pygp.covar import CovarianceFunction
 import dist
 import pdb
+import numpy
 
 class Sqexp_Periodic_CF(CovarianceFunction):
     """
@@ -34,7 +36,7 @@ class Sqexp_Periodic_CF(CovarianceFunction):
     def __init__(self,*args,**kwargs):
         super(Sqexp_Periodic_CF, self).__init__(*args,**kwargs)
         self.n_hyperparameters = 2
-        pass
+        self.n_dimensions = 1
 
     def get_hyperparameter_names(self):
         """
@@ -54,14 +56,20 @@ class Sqexp_Periodic_CF(CovarianceFunction):
     def K(self, theta, x1, x2=None, p=2):
         """
         See covPeriodic.m from GPML
-        K(x, y) = A * exp( -nll*sin^2 (||x1-x2||/p) )
+        K(x1, x2) = A * exp( -nll*sin^2 (||x1-x2||/p) )
         """
+        # print inspect.stack()[1][3], x1.shape, x2
         x1, x2 = self._filter_input_dimensions(x1, x2)
         A = SP.exp(theta[0])
         nll = SP.exp(theta[1])
         distance = dist.dist(x1, x2) / p
-        rv = -nll * math.pow(math.sin(distance), 2)
+        sin_distance = numpy.sin(distance)
+        rv = -nll * numpy.multiply(sin_distance, sin_distance)
         rv = A * SP.exp(rv)
+        # This next line is kind of hacky. I get a (len, len, 1)
+        # shape, so I just want to make it (len, len)
+        # I should figure out the reason behind this in the first place, though
+        rv.resize(rv.shape[:-1])
         return rv
 
 #     def Kdiag(self,theta, x1):
@@ -89,8 +97,8 @@ class Sqexp_Periodic_CF(CovarianceFunction):
         A = SP.exp(2*theta[0])
         nll  = SP.exp(theta[1:1+self.n_dimensions])
         # calculate sin^2 (|x1-x2|/p)
-        distance = dist.dist(x1, x2) / p
-        sinsq = math.pow(math.sin(distance), 2)
+        sin_distance = numpy.sin(dist.dist(x1, x2) / p)
+        sinsq = numpy.multiply(sin_distance, sin_distance)
         #3. calcualte withotu derivatives, need this anyway:
         derivative_A = SP.exp(-nll * sinsq)
         if i==0:

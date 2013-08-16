@@ -14,6 +14,7 @@ import numpy.random as random
 from pygp.gp import GP
 from pygp.gp.composite import GroupGP
 from pygp.covar import se, noise, combinators
+from pygp.covar import se_periodic
 import pygp.likelihood as lik
 
 import pygp.optimize as opt
@@ -78,11 +79,12 @@ def run_demo():
     if 1:
         #new interface with likelihood parametres being decoupled from the covaraince function
         likelihood = lik.GaussLikISO()
-        covar_parms = scipy.log([1,1])
-        hyperparams = {'covar':covar_parms,'lik':scipy.log([1])}       
+        covar_parms = SP.log([1,1])
+        hyperparams = {'covar':covar_parms,'lik':SP.log([1])}       
         #construct covariance function
+        SECFp = se_periodic.Sqexp_Periodic_CF(1)
         SECF = se.SqexpCFARD(n_dimensions=n_dimensions)
-        covar = SECF
+        covar = SECFp
         covar_priors = []
         #scale
         covar_priors.append([lnpriors.lnGammaExp,[1,2]])
@@ -101,6 +103,7 @@ def run_demo():
     
     #predict
     [M,S] = gp.predict(opt_model_params,X)
+    print opt_model_params, M, S
 
     #create plots
     gpr_plot.plot_sausage(X,M,SP.sqrt(S))
