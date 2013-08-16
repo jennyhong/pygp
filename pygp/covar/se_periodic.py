@@ -53,6 +53,11 @@ class Sqexp_Periodic_CF(CovarianceFunction):
         """
         return self.n_hyperparameters
 
+    def _filter_input_dimensions(self, x1, x2):
+        if x2 == None:
+            return x1, x1
+        return x1, x2
+
     def K(self, theta, x1, x2=None, p=2):
         """
         See covPeriodic.m from GPML
